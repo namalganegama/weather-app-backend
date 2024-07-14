@@ -51,10 +51,45 @@ async function getUsersByDate(req, res) {
     }
 }
 
+async function updateUserLocation(req, res) {
+    const { userId } = req.params;
+    const { location } = req.query;
 
+    if (!location) {
+        return res.status(400).send({ error: 'Location is required' });
+    }
+
+    try {
+        let user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).send({ error: 'User not found' });
+        }
+
+        const { lat, lon } = await getCoordinates(location);
+        const weatherData = await getWeatherData(lat, lon);
+        const report = await getReport(weatherData);
+
+        const now = new Date();
+        const date = format(now, 'yyyy/MM/dd');
+        const time = format(now, 'HH:mm:ss');
+
+        user.location = location;
+        user.report = report;
+        user.date = date;
+        user.time = time;
+
+        await user.save();
+        res.send({ user, weatherData });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send(error);
+    }
+}
 
 module.exports = {
     createUser,
     getUsers,
     getUsersByDate,
+    updateUserLocation
 };
