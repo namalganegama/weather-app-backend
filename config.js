@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+dotenv.config();
 
-mongoose.connect('mongodb+srv://namalpathum:tN67lNKRvuw6bAVA@cluster0.cfp9h4s.mongodb.net/weatherData?retryWrites=true&w=majority&appName=Cluster0');
+mongoose.connect(process.env.DB_URL);
 
 const db = mongoose.connection;
 
